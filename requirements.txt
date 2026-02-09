@@ -1,6 +1,7 @@
-flask
+fastapi
+uvicorn[standard]
 requests
 python-dotenv
-convex
-
-
+supabase
+google-generativeai
+httpx
