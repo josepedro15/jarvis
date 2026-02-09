@@ -49,7 +49,7 @@ SELECT cron.schedule(
   $$
   select
     net.http_get(
-        url:='https://jarvis-command-center.vercel.app/api/cron/jules',
+        url:='https://jarvis-1192.vercel.app/api/cron/jules',
         headers:=jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET')
     ) as request_id;
   $$
@@ -62,7 +62,7 @@ SELECT cron.schedule(
   $$
   select
     net.http_get(
-        url:='https://jarvis-command-center.vercel.app/api/cron/n8n',
+        url:='https://jarvis-1192.vercel.app/api/cron/n8n',
         headers:=jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET')
     ) as request_id;
   $$
@@ -75,7 +75,7 @@ SELECT cron.schedule(
   $$
   select
     net.http_get(
-        url:='https://jarvis-command-center.vercel.app/api/cron/metrics',
+        url:='https://jarvis-1192.vercel.app/api/cron/metrics',
         headers:=jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET')
     ) as request_id;
   $$
