@@ -40,9 +40,7 @@ create extension if not exists pg_net;
 -- 2. Schedule Jobs
 
 -- Clean up existing jobs (optional, to avoid duplicates)
-SELECT cron.unschedule('jules-monitor');
-SELECT cron.unschedule('n8n-sync');
-SELECT cron.unschedule('metrics-aggregator');
+
 
 -- Jules Monitor (Every minute)
 SELECT cron.schedule(
