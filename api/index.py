@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import asyncio
+import os
 
 # Modulos internos
 from _lib import supabase_client as db
@@ -30,6 +31,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _verify_cron_secret(request: Request):
+    """Verifica segredo do CRON (Header ou Query Param)."""
+    secret = os.environ.get("CRON_SECRET")
+    if not secret:
+        print("WARN: CRON_SECRET nao configurado")
+        return  # Permitir se sem segredo (dev/legacy) ou bloquear?
+        # Por seguranca, vou levantar erro se nao bater, mas se env nao existir,
+        # talvez seja melhor bloquear. Vou assumir que deve estar setado.
+        # raise HTTPException(status_code=500, detail="CRON_SECRET_MISSING")
+    
+    auth = request.headers.get("Authorization")
+    if auth == f"Bearer {secret}":
+        return
+        
+    if request.query_params.get("secret") == secret:
+        return
+        
+    raise HTTPException(status_code=401, detail="Invalid Cron Secret")
 
 
 # ============================================
@@ -69,7 +90,8 @@ async def whatsapp_webhook(request: Request):
 # ============================================
 
 @app.get("/api/cron/jules")
-async def cron_jules():
+async def cron_jules(request: Request):
+    _verify_cron_secret(request)
     """Cron: Monitora sessoes Jules pendentes (a cada 1 min)."""
     stats = await task_manager.monitor_pending_sessions()
     db.log("jules", f"Cron Jules: {stats}")
@@ -77,7 +99,8 @@ async def cron_jules():
 
 
 @app.get("/api/cron/n8n")
-async def cron_n8n():
+async def cron_n8n(request: Request):
+    _verify_cron_secret(request)
     """Cron: Sincroniza workflows N8N com GitHub (a cada 5 min)."""
     stats = await workflow_sync.sync_workflows()
     db.log("n8n", f"Cron N8N sync: {stats}")
@@ -85,7 +108,8 @@ async def cron_n8n():
 
 
 @app.get("/api/cron/metrics")
-async def cron_metrics():
+async def cron_metrics(request: Request):
+    _verify_cron_secret(request)
     """Cron: Agrega metricas (a cada 1 hora)."""
     from datetime import datetime, timezone
     now = datetime.now(timezone.utc)

@@ -11,19 +11,5 @@
       "source": "/api/:path*",
       "destination": "/api/index.py"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/jules",
-      "schedule": "* * * * *"
-    },
-    {
-      "path": "/api/cron/n8n",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/metrics",
-      "schedule": "0 * * * *"
-    }
   ]
 }
