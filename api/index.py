@@ -22,17 +22,37 @@ conversation = None
 task_manager = None
 workflow_sync = None
 
+
 try:
+    # Adicionar diretorio atual ao path para garantir importacao correta na Vercel
+    import sys
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    if current_dir not in sys.path:
+        sys.path.append(current_dir)
+
     # Modulos internos
-    from _lib import supabase_client as db
-    from _lib import whatsapp_gateway as whatsapp
-    from _lib import gemini_client as ai
-    from _lib import jules_client as jules
-    from _lib import github_client as github
-    from _lib import n8n_client as n8n
-    from _lib import conversation
-    from _lib import task_manager
-    from _lib import workflow_sync
+    # Tenta importar com ponto (relativo) e sem ponto (absoluto)
+    try:
+        from ._lib import supabase_client as db
+        from ._lib import whatsapp_gateway as whatsapp
+        from ._lib import gemini_client as ai
+        from ._lib import jules_client as jules
+        from ._lib import github_client as github
+        from ._lib import n8n_client as n8n
+        from ._lib import conversation
+        from ._lib import task_manager
+        from ._lib import workflow_sync
+    except ImportError:
+        from _lib import supabase_client as db
+        from _lib import whatsapp_gateway as whatsapp
+        from _lib import gemini_client as ai
+        from _lib import jules_client as jules
+        from _lib import github_client as github
+        from _lib import n8n_client as n8n
+        from _lib import conversation
+        from _lib import task_manager
+        from _lib import workflow_sync
 except Exception as e:
     import traceback
     INIT_ERROR = f"Erro ao inicializar API: {str(e)}\n{traceback.format_exc()}"
