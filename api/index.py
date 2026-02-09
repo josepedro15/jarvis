@@ -9,19 +9,38 @@ from fastapi.responses import JSONResponse
 import asyncio
 import os
 
-# Modulos internos
-from _lib import supabase_client as db
-from _lib import whatsapp_gateway as whatsapp
-from _lib import gemini_client as ai
-from _lib import jules_client as jules
-from _lib import github_client as github
-from _lib import n8n_client as n8n
-from _lib import conversation
-from _lib import task_manager
-from _lib import workflow_sync
+
+# Validacao de inicializacao
+INIT_ERROR = None
+db = None
+whatsapp = None
+ai = None
+jules = None
+github = None
+n8n = None
+conversation = None
+task_manager = None
+workflow_sync = None
+
+try:
+    # Modulos internos
+    from _lib import supabase_client as db
+    from _lib import whatsapp_gateway as whatsapp
+    from _lib import gemini_client as ai
+    from _lib import jules_client as jules
+    from _lib import github_client as github
+    from _lib import n8n_client as n8n
+    from _lib import conversation
+    from _lib import task_manager
+    from _lib import workflow_sync
+except Exception as e:
+    import traceback
+    INIT_ERROR = f"Erro ao inicializar API: {str(e)}\n{traceback.format_exc()}"
+    print(INIT_ERROR)
 
 
 app = FastAPI(title="Jarvis - Centro de Comando", version="1.0.0")
+
 
 # CORS para o painel admin
 app.add_middleware(
@@ -31,6 +50,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def check_init_error(request: Request, call_next):
+    if INIT_ERROR:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "API Initialization Failed",
+                "detail": INIT_ERROR
+            }
+        )
+    return await call_next(request)
 
 
 def _verify_cron_secret(request: Request):

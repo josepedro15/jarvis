@@ -7,8 +7,15 @@ import json
 from .config import GOOGLE_API_KEY
 from . import supabase_client as db
 
+
 # Configurar SDK
-genai.configure(api_key=GOOGLE_API_KEY)
+if GOOGLE_API_KEY:
+    try:
+        genai.configure(api_key=GOOGLE_API_KEY)
+    except Exception as e:
+        print(f"Error configuring Gemini: {e}")
+else:
+    print("WARN: GOOGLE_API_KEY not set")
 
 
 def get_model(model_name: str = None, temperature: float = None):
